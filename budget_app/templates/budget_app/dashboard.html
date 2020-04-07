@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Dashboard</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+</head>
+<body style="background-color:#D4E6F1">
+	<nav>
+        <div class="nav-wrapper">
+            <a href='{% url "index" %}' class='brand-logo center'>Budget-It</a>
+            <ul class="right">
+                <li><a href='{% url "logout" %}' class='btn'>Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <br>
+    <h5 align="center">View your dashboard </h5>
+    <div class="section">
+            <div class="row">
+                <div class="container">
+				    <div class="col s6">
+				        <h5>Total Expense vs Total Budget</h5>
+				        <img class='responsive-img' src= "{% static 'budget_app/expense.png' %}">
+				    </div>
+				                    
+				    <div class="col s6">
+					    <h5>Your monthly Expenses</h5>
+					    <img class='responsive-img' src= "{% static 'budget_app/costs.png' %}">
+				    </div>
+				</div>
+		    </div>
+	</div>
+
+
+</body>
+</html>

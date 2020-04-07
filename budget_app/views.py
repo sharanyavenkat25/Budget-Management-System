@@ -128,6 +128,9 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect('/')
 
+def view(request):
+	form = UserCreationForm
+	return render(request,'budget_app/dashboard.html',{'form':form})
 
 def sign_up(request):
     if request.method == 'POST':
