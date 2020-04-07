@@ -13,9 +13,14 @@ from django.db.models import Q
 # Create your views here.
 
 labels={}
-# cost = []
+cred_labels={}
+#for debit (expenses)
 labels1=[]
 costs1 = []
+
+#for credit (additions)
+labels2=[]
+costs2= []
 def index(request):
     #db operations
     expense_items = ExpenseInfo.objects.filter(user_expense=request.user).order_by('-date_added')
@@ -29,6 +34,8 @@ def index(request):
 
         labels1=[]
         costs1 = []
+        labels2=[]
+        costs2=[]
         print(expense_items)
         for expense_item in expense_items:
             
@@ -39,14 +46,27 @@ def index(request):
                 else:
                     labels[expense_item.expense_name]=abs(expense_item.cost)
                 print(labels)
+            else:
+            	if(expense_item.expense_name in cred_labels.keys()):
+            		cred_labels[expense_item.expense_name]+=abs(expense_item.cost)
+            	else:
+            		cred_labels[expense_item.expense_name]=abs(expense_item.cost)
+            	print(cred_labels)
                 # costs1.append(abs(expense_item.cost))
                 # labels1.append(expense_item.expense_name)
         labels1=labels.keys()
         costs1=labels.values()
-        print("printing from index")
+
+        labels2=cred_labels.keys()
+        costs2=cred_labels.values()
+        print("printing from index for debit")
 
         print(labels1)
         print(costs1)
+        print("printing from index for credit")
+
+        print(labels2)
+        print(costs2)
 
         
         fig1, ax1 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
@@ -59,6 +79,13 @@ def index(request):
         plt.setp(autotexts, size=10, weight="bold")
         # ax1.set_title("Your Monthly Expenses")
         plt.savefig('budget_app/static/budget_app/costs.png')
+
+        fig2, ax2 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
+        wedges_, texts_, autotexts_ = ax2.pie(costs2, autopct='%1.1f%%',textprops=dict(color="w"))
+
+        ax2.legend(wedges_,labels2,title="Credits",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        plt.setp(autotexts_, size=10, weight="bold")
+        plt.savefig('budget_app/static/budget_app/credits.png')
 
 
 
@@ -75,6 +102,13 @@ def index(request):
     	ax1.pie(d,labels=l)
     	ax1.set_title('No data to show')
     	plt.savefig('budget_app/static/budget_app/costs.png')
+
+    	fig2,ax2=plt.subplots()
+    	l=[]
+    	d=[]
+    	ax2.pie(d,labels=l)
+    	ax2.set_title('No data to show')
+    	plt.savefig('budget_app/static/budget_app/credits.png')
     if(expense_total['expenses'] is None):
         expense_total['expenses']=0
     if(budget_total['budget'] is None):
@@ -90,10 +124,18 @@ def add_item(request):
     if(int(expense_cost)<0):
         labels1.append(name)
         costs1.append(expense_cost)
+    else:
+    	labels2.append(name)
+    	costs2.append(expense_cost)
 
     print("printing from add item")
+    print("debit")
     print(labels1)
     print(costs1)
+    print("credit")
+    print(labels2)
+    print(costs2)
+
     ExpenseInfo.objects.create(expense_name=name,cost=expense_cost,date_added=expense_date,user_expense=request.user)
     budget_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(budget=Sum('cost',filter=Q(cost__gt=0)))
     expense_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(expenses=Sum('cost',filter=Q(cost__lt=0)))
@@ -118,6 +160,12 @@ def add_item(request):
     plt.setp(autotexts, size=10, weight="bold")
     # ax1.set_title("Your Monthly Expenses")
     plt.savefig('budget_app/static/budget_app/costs.png')
+
+    fig2, ax2 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
+    wedges_, texts_, autotexts_ = ax2.pie(costs2, autopct='%1.1f%%',textprops=dict(color="w"))
+    ax2.legend(wedges_,labels2,title="Credits",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    plt.setp(autotexts_, size=10, weight="bold")
+    plt.savefig('budget_app/static/budget_app/credits.png')
 
     return HttpResponseRedirect('app')
 

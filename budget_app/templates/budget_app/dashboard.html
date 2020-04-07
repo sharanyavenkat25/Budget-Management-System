@@ -7,6 +7,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
+   <!--  <script type="text/javascript">
+		
+			imgid=1;
+			xhr=new XMLHttpRequest();
+			getImg=function(){
+
+				xhr.onreadystatechange=showImg;
+				if(imgid>3){
+					return;
+				}
+				xhr.open("GET","http://localhost/218/week5_img.php?id="+imgid,true);
+				imgid++;
+				xhr.send();
+			};
+			showImg=function(){
+				if(xhr.readyState==4 && xhr.status==200){
+					
+					var res = xhr.responseText;
+		
+					console.log(res);
+					i=document.createElement("img");
+					i.src=res;
+					i.width=300;
+					i.height=300;
+					
+					document.getElementById("imgdiv").innerHTML="";
+					document.getElementById("imgdiv").appendChild(i);
+	
+					setTimeout(getImg,2000);
+
+
+			}
+				
+			};
+
+
+	</script> -->
 </head>
 <body style="background-color:#D4E6F1">
 	<nav>
@@ -30,6 +67,11 @@
 				    <div class="col s6">
 					    <h5>Your monthly Expenses</h5>
 					    <img class='responsive-img' src= "{% static 'budget_app/costs.png' %}">
+				    </div>
+
+				    <div class="col s6">
+					    <h5>Your monthly Credits</h5>
+					    <img class='responsive-img' src= "{% static 'budget_app/credits.png' %}">
 				    </div>
 				</div>
 		    </div>
