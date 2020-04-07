@@ -29,6 +29,7 @@ def index(request):
 
         labels1=[]
         costs1 = []
+        print(expense_items)
         for expense_item in expense_items:
             
             if((expense_item.cost)<0):
@@ -47,11 +48,7 @@ def index(request):
         print(labels1)
         print(costs1)
 
-        # fig1, ax1 = plt.subplots()
-        # ax1.pie(costs1,labels=labels1,autopct='%1.1f%%',startangle=90)
-        # ax1.axis('equal')
-        # ax1.set_title('Your Monthly expenses')
-        # plt.savefig('budget_app/static/budget_app/costs.png')
+        
         fig1, ax1 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
         def func(pct, allvals):
             absolute = int(pct/100.*np.sum(allvals))
@@ -66,10 +63,21 @@ def index(request):
 
 
     except TypeError:
-        print('No data.')
-    if(type(expense_total['expenses'])==None):
+    	print('No data.')
+    	fig,ax=plt.subplots()
+    	ax.bar(['Expenses','Budget'], [0,0],color=['red','green'])
+    	ax.set_title('No data to show')
+    	plt.savefig('budget_app/static/budget_app/expense.png')
+
+    	fig1,ax1=plt.subplots()
+    	l=[]
+    	d=[]
+    	ax1.pie(d,labels=l)
+    	ax1.set_title('No data to show')
+    	plt.savefig('budget_app/static/budget_app/costs.png')
+    if(expense_total['expenses'] is None):
         expense_total['expenses']=0
-    if(type(budget_total['budget'])==None):
+    if(budget_total['budget'] is None):
         budget_total['budget']=0
     context = {'expense_items':expense_items,'budget':budget_total['budget'],'expenses':abs(expense_total['expenses'])}
     return render(request,'budget_app/index.html',context=context)
@@ -90,7 +98,7 @@ def add_item(request):
     budget_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(budget=Sum('cost',filter=Q(cost__gt=0)))
     expense_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(expenses=Sum('cost',filter=Q(cost__lt=0)))
     fig,ax=plt.subplots()
-    if(type(expense_total['expenses']==None)):
+    if(expense_total['expenses'] is None):
         expense_total['expenses']=0
     ax.bar(['Expenses','Budget'], [abs(expense_total['expenses']),budget_total['budget']],color=['red','green'])
     # ax.set_title('Your total expenses vs. total budget')
