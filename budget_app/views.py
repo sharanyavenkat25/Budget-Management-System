@@ -57,13 +57,13 @@ def index(request):
 				
 			else:
 				labels[expense_item.expense_name]=abs(expense_item.cost)
-			print(labels)
+			# print(labels)
 		else:
 			if(expense_item.expense_name in cred_labels.keys()):
 				cred_labels[expense_item.expense_name]+=abs(expense_item.cost)
 			else:
 				cred_labels[expense_item.expense_name]=abs(expense_item.cost)
-			print(cred_labels)
+			# print(cred_labels)
 				# costs1.append(abs(expense_item.cost))
 				# labels1.append(expense_item.expense_name)
 	labels1=labels.keys()
