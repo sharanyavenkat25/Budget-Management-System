@@ -24,6 +24,8 @@
         </nav>
         <br>
         <div class="section">
+        	<h3 class="center">Hi, {{ user }}! Welcome to your Dashboard</h3>
+                            <br>
             <div class="row" id="budget" style="display: inline">
                 
                 <form class="col s12" action='{% url "index" %}' method='post' id="entered_budget">
@@ -31,7 +33,10 @@
                     <div class="row">
                         <div class="container center">
                             
-                       
+                       <div class="input-field col s3">
+                                <input placeholder="Expense name" name="init_name" id='init_name' type='text' class='validate' required>
+                                <label for='expense_name'>Expense name</label>
+                            </div>
                         <div class="input-field col s3">
                                 <input placeholder='budget' name='init_budget' id='init_budget' type='text' class='validate' required>
                                 <label for='init_budget'>Enter your budget</label>
@@ -41,7 +46,7 @@
                                 <input placeholder='Date of Expense' name="init_expense_date" id="init_expense_date" type="text" class='datepicker'>
                                 <label for="init_expense_date">Budget Date</label>
                         </div>
-                        <button class="btn waves-effect waves-light" type="submit" name="action" onclick="getContent()" required>Add Budget
+                        <button class="btn waves-effect waves-light" type="submit" name="action" onclick="getContent()">Add Budget
                                 <i class="material-icons right">add_circle</i>
                         </button>
                             
@@ -52,7 +57,7 @@
 
 
 
-            <div class="row" id="expense"  style="display:none">
+            <div class="row" id="expense">
 
                 <form class="col s12" action='{% url "add item" %}' method='post'>
                     {% csrf_token %}
@@ -60,8 +65,7 @@
                         <div class="container center">
                             <!-- <h3 class="center">Hi, {{ user }}! Welcome to your Dashboard</h3>
                             <br> -->
-                            <h3 class="center">Hi, {{ user }}! Welcome to your Dashboard</h3>
-                            <br>
+                            
                             <h5 class='center'>Your total budget is: <span style="color:green;">{{budget}}</span>Rupees</h5>
                             
                             <h5 class='center'>You've spent a total of : <span style="color:red;">{{expenses}}</span>Rupees</h5>
@@ -71,15 +75,15 @@
                             <br>
                             <br>
                             <div class="input-field col s3">
-                                <input placeholder="Expense name" name="expense_name" id='expense_name' type='text' class='validate'>
+                                <input placeholder="Expense name" name="expense_name" id='expense_name' type='text' class='validate' required>
                                 <label for='expense_name'>Expense name</label>
                             </div>
                             <div class="input-field col s3">
-                                <input placeholder='Amount' name='cost' id='cost' type='text' class='validate'>
+                                <input placeholder='Amount' name='cost' id='cost' type='text' class='validate' required>
                                 <label for='cost'>Amount</label>
                             </div>
                             <div class="input-field col s3">
-                                <input placeholder='Date of Expense' name="expense_date" id="expense_date" type="text" class='datepicker'>
+                                <input placeholder='Date of Expense' name="expense_date" id="expense_date" type="text" class='datepicker' required>
                                 <label for="expense_date">Expense Date</label>
                             </div>
                             <button class="btn waves-effect waves-light" type="submit" name="action" onclick="getContent()">Add Expense
@@ -100,13 +104,19 @@
                     </button>
                 </center>
                 </form> -->
-                <div id=showdb>
+                <div>
                 <center>
                 <button class="btn waves-effect waves-light" type="submit" name="action" onclick="show()">
-                    View Your Personalised Dash
+                    View Your Personalised Dashboard
                 </button>
+                <button class="btn waves-effect waves-light" type="submit" name="action" onclick="hidedb()">
+                    Hide your Personalised dashboard
+                </button>
+                <div id="showdb" style="display: inline">
                 <center>
                 <div>
+                </div>
+                
 
             </div>
 
@@ -183,12 +193,15 @@
                 var instances = M.Datepicker.init(elems, {format:'yyyy-mm-dd'});
             });
 
-         
+         	function hidedb()
+         	{
+         		document.getElementById("showdb").style.display='none';
+         	}
             function getContent()
             {
             	console.log("in get conetent")
             	document.getElementById('expense').style.display ='inline';
-            	document.getElementById('budget').style.display ='none';
+            	// document.getElementById('budget').style.display ='none';
 				fetchmore();
             }
             function fetchmore()
@@ -196,7 +209,7 @@
             	console.log("in fetchmore")
             	xhr = new XMLHttpRequest();
             	xhr.open("get",'{% url "dashboard" %}')
-            	// xhr.onreadystatechange=show;
+            	xhr.readystatechange=show;
             	xhr.send()
             }
             function show()
@@ -208,7 +221,8 @@
 
 				console.log("hello");
 				console.log(xhr.responseText);
-				document.getElementById("showdb").innerHTML+=xhr.responseText
+				document.getElementById("showdb").style.display='inline'
+				document.getElementById("showdb").innerHTML=xhr.responseText
 
 	
             	}
