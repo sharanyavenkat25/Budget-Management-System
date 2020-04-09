@@ -10,8 +10,10 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from django.db.models import Q
+import datetime
 
 #ml part
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.ar_model import AR
 from random import random
 # Create your views here.
@@ -77,7 +79,7 @@ def index(request):
 
 	labels2=cred_labels.keys()
 	costs2=cred_labels.values()
-	print(debit_dates)
+	print(list(debit_dates))
 	print("printing from index for debit")
 
 	print(labels1)
@@ -92,6 +94,8 @@ def index(request):
 	def func(pct, allvals):
 		absolute = int(pct/100.*np.sum(allvals))
 		return "{:.1f}%\n({:d} g)".format(pct, absolute)
+
+
 	wedges, texts, autotexts = ax1.pie(costs1, autopct='%1.1f%%',textprops=dict(color="w"))
 
 	ax1.legend(wedges,labels1,title="Expenditures",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
@@ -105,19 +109,43 @@ def index(request):
 	ax2.legend(wedges_,labels2,title="Credits",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 	plt.setp(autotexts_, size=10, weight="bold")
 	plt.savefig('budget_app/static/budget_app/credits.png')
+	if(len(debit_dates)>=10):
+			fig3, ax3 = plt.subplots(figsize=(6,4))
+			model = AR(list(costs1))
+			model_fit = model.fit()
+			# make prediction
+			yhat = model_fit.predict(len(costs1), len(costs1))
+			print("PREDICTED EXPENSE...")
+			print(yhat)  #new expense
+			copy=[]
+			copy=list(costs1)
+			print(costs1)
+			print(copy)
+			print(debit_dates)
+			#copy.append(yhat)
+			#debit_dates.append(debit_dates[0]+datetime.timedelta(days=1))
+			fig3.autofmt_xdate()
+			ax3.plot(debit_dates, copy)
 
-	fig2, ax3 = plt.subplots()
-	model = AR(list(costs1))
-	model_fit = model.fit()
-	# make prediction
-	yhat = model_fit.predict(len(costs1), len(costs1))
-	print("PREDICTED EXPENSE...")
-	print(yhat)  #new expense
-	copy=[]
-	copy=list(costs1)
-	copy.append(yhat)
-	ax3.plot(debit_dates, copy)  #line graph for AR
-	plt.savefig('budget_app/static/budget_app/predict.png')
+			  #line graph for AR
+			plt.savefig('budget_app/static/budget_app/predict.png')
+
+			#fig4, ax4 = plt.subplots()
+			model2 =  ExponentialSmoothing(list(costs1))
+			model_fit2 = model2.fit()
+			# make prediction
+			yhat2 = model_fit2.predict(len(costs1), len(costs1))
+			print("Range of expenses:")
+			print(yhat[0], "-", yhat2[0])  #new expense
+			#copy2=[]
+			#copy2=list(costs1)
+			#copy2.append(yhat2)
+			#ax4.plot(debit_dates, copy, "b")
+			#ax4.plot(debit_dates, copy2, "r")  #line graph for AR
+			#ax4.set_title("helllllllo")
+			#plt.savefig('budget_app/static/budget_app/predict2.png')
+	lower=round(yhat[0],2)
+	upper=round(yhat2[0],2)
 	# plt.show()
 
 
@@ -144,12 +172,16 @@ def index(request):
 	# 	plt.savefig('budget_app/static/budget_app/credits.png')
 
 	
-	for i in expense_items:
-		print("in loop")
-		print(i.expense_name)
-		print(i.cost)
 
-	context = {'expense_items':expense_items,'budget':budget_total['budget'],'expenses':abs(expense_total['expenses'])}
+	if lower is None:
+		lower=0
+	if upper is None:
+		upper=0
+	#print("lower:",lower)
+	#print("upper:", upper)
+
+	context = {'expense_items':expense_items,'budget':budget_total['budget'],'diff': budget_total['budget']+expense_total['expenses'],'expenses':abs(expense_total['expenses']), 'lower':lower,'upper':upper}
+	#render(request, "budget_app/dashboard.html", context=context)
 	return render(request,'budget_app/index.html',context=context)
 
 def add_item(request):
@@ -174,8 +206,9 @@ def add_item(request):
 
 	ExpenseInfo.objects.create(expense_name=name,cost=expense_cost,date_added=expense_date,user_expense=request.user)
 	budget_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(budget=Sum('cost',filter=Q(cost__gt=0)))
-	expense_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(expenses=Sum('cost',filter=Q(cost__lt=0)))
-	fig,ax=plt.subplots()
+	expense_total = ExpenseInfo.objects.filter(user_expense=request.user).aggregate(expenses=Sum('cost',filter=Q(cost__lt=0)))	
+	
+	fig,ax=plt.subplots(figsize=(6,4))
 	if(expense_total['expenses'] is None):
 		expense_total['expenses']=0
 	if(budget_total['budget'] is None):
@@ -188,7 +221,7 @@ def add_item(request):
 	# ax1.pie(costs1,labels=labels1,autopct='%.1f%%',startangle=90)
 	# ax1.axis('equal')
 	# plt.savefig('budget_app/static/budget_app/costs.png')
-	fig1, ax1 = plt.subplots(figsize=(7,4), subplot_kw=dict(aspect="equal"))
+	fig1, ax1 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
 	def func(pct, allvals):
 		absolute = int(pct/100.*np.sum(allvals))
 		return "{:.1f}%\n({:d} g)".format(pct, absolute)
