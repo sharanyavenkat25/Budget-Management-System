@@ -1,4 +1,5 @@
 {% load static %}
+
 <!-- <!DOCTYPE html>
 <html>
 <head>
@@ -17,28 +18,56 @@
         </div>
     </nav>
     <br> -->
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+  
+	<script>
+	$(document).ready(function(){
+	$("p").mouseenter(function(){
+	$("#1").css("background-color", "yellow");
+	});
+	$("#1").mouseleave(function(){
+	$("p").css("background-color", "lightgray");
+	});
+	});
+	</script>
+  
+
+</script>
+</head>
+<body>
     <h5 align="center">View your dashboard </h5>
     <div class="section">
             <div class="row">
                 <div class="container">
-				    <div class="col s6">
+				    <div id="1" class="col s6">
 				        <h5>Total Expense vs Total Budget</h5>
 				        <img class='responsive-img' src= "{% static 'budget_app/expense.png' %}">
 				    </div>
 				                    
-				    <div class="col s6">
+				    <div id="2" class="col s6">
 					    <h5>Your monthly Expenses</h5>
-					    <img class='responsive-img' src= "{% static 'budget_app/costs.png' %}">
+					    <img class='responsive-img' src= "{% static 'budget_app/costs.png' %}"">
 				    </div>
-
-				    <div class="col s6">
+			</div>
+			</div>
+			<div class="row">
+                <div class="container">
+				    <div id="3" class="col s6">
 					    <h5>Your monthly Credits</h5>
 					    <img class='responsive-img' src= "{% static 'budget_app/credits.png' %}">
+				    </div>
+
+				    <div id="4" class="col s6">
+					    <h5>Watch it go</h5>
+					    <img class='responsive-img' src= "{% static 'budget_app/predict.png' %}" alt="Make at least 10 debits">
 				    </div>
 				</div>
 		    </div>
 	</div>
-
-
+</body>
+</html>
 <!-- </body>
 </html> -->
