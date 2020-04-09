@@ -4,17 +4,21 @@ A budget management system where users can manage their monthly finances in an o
 
 This project is implemented as a part of the _WT-II Lab course UE17CS355_
 
-The Web App uses the following
+## Technologies
+
+Tech-stack
 * Django ( Backend Framework )
 * REST API
 * Ajax Patterns ( Predictive fetch )
 * Jquery
+* Jinja2
 * JavaScript
 * HTML
 * CSS
 
 
-### Prerequisites
+## Prerequisites
+
 
 Installing Django
 
