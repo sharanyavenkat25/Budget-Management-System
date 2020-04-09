@@ -10,10 +10,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 from django.db.models import Q
+
+#ml part
+from statsmodels.tsa.ar_model import AR
+from random import random
 # Create your views here.
 
 labels={}
 cred_labels={}
+dates=[]
 #for debit (expenses)
 labels1=[]
 costs1 = []
@@ -22,7 +27,7 @@ costs1 = []
 labels2=[]
 costs2= []
 def index(request):
-	init_name = 'My Budget'
+	init_name = request.POST.get('init_name','Budget')
 	init_budget = request.POST.get('init_budget',0)
 	init_expense_date = request.POST.get('init_expense_date','2020-04-01')
 	
@@ -48,22 +53,23 @@ def index(request):
 	costs1 = []
 	labels2=[]
 	costs2=[]
-	print(expense_items)
+	debit_dates=[]
 	for expense_item in expense_items:
-			
+		
 		if((expense_item.cost)<0):
+			debit_dates.append(expense_item.date_added)	
 			if(expense_item.expense_name in labels.keys()):
 				labels[expense_item.expense_name]+=abs(expense_item.cost)
 				
 			else:
 				labels[expense_item.expense_name]=abs(expense_item.cost)
-			print(labels)
+			# print(labels)
 		else:
 			if(expense_item.expense_name in cred_labels.keys()):
 				cred_labels[expense_item.expense_name]+=abs(expense_item.cost)
 			else:
 				cred_labels[expense_item.expense_name]=abs(expense_item.cost)
-			print(cred_labels)
+			# print(cred_labels)
 				# costs1.append(abs(expense_item.cost))
 				# labels1.append(expense_item.expense_name)
 	labels1=labels.keys()
@@ -71,10 +77,11 @@ def index(request):
 
 	labels2=cred_labels.keys()
 	costs2=cred_labels.values()
+	print(debit_dates)
 	print("printing from index for debit")
 
 	print(labels1)
-	print(costs1)
+	print(list(costs1))
 	print("printing from index for credit")
 
 	print(labels2)
@@ -99,6 +106,19 @@ def index(request):
 	plt.setp(autotexts_, size=10, weight="bold")
 	plt.savefig('budget_app/static/budget_app/credits.png')
 
+	fig2, ax3 = plt.subplots()
+	model = AR(list(costs1))
+	model_fit = model.fit()
+	# make prediction
+	yhat = model_fit.predict(len(costs1), len(costs1))
+	print("PREDICTED EXPENSE...")
+	print(yhat)  #new expense
+	copy=[]
+	copy=list(costs1)
+	copy.append(yhat)
+	ax3.plot(debit_dates, copy)  #line graph for AR
+	plt.savefig('budget_app/static/budget_app/predict.png')
+	# plt.show()
 
 
 	# except TypeError:
