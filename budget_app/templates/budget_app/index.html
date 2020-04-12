@@ -94,11 +94,20 @@
         </nav>
         <br>
         <div class="section">
-        	<h3 id="main" class="center">Hi, {{ user }}! Welcome to your Dashboard!</h3>
+        	<h3 id="main" class="center">Hi, {{ user }}!<br>Please add an initial budget to continue<br></h3>
                             <br>
             <div class="row" id="budget" style="display: inline">
                 
-                <form class="col s12" action='{% url "index" %}' method='post' id="entered_budget">
+                
+                <center>
+                {% if budget > 0 %}
+                    <p> You have already set a budget for yourself </p>
+                    <a href='{% url "budget" %}' class="btn"> Proceed to Add expenses </a>
+               
+
+                {% else %}
+                    <p> You havent set any initial budget. Please add a budget to get started! </p>
+                    <form class="col s12" action='{% url "budget" %}' method='post' id="entered_budget">
                     {% csrf_token %}
                     <div class="row">
                         <div class="container center">
@@ -109,155 +118,33 @@
                         </div>
                         
                         <div class="input-field col s3">
-                                <input placeholder='Date of Expense' name="init_expense_date" id="init_expense_date" type="text" class='datepicker'>
+                                <input placeholder='Date of Expense' name="init_expense_date" id="init_expense_date" type="text" class='datepicker' required>
                                 <label for="init_expense_date">Budget Date</label>
                         </div>
-                        <button id="get_cont" class="btn waves-effect waves-light" type="submit" name="action">Add Budget
+                        <button id="get_cont" class="btn waves-effect waves-light" type="submit" name="action">
+                            Add Budget
                                 <i class="material-icons right">add_circle</i>
                         </button>
                             
                         </div>
                     </div>
                 </form>
+                 {% endif %}
+                 </center>
             </div>
 
-
-
-            <div class="row" id="expense" >
-
-                <form class="col s12" action='{% url "add item" %}' method='post'>
-                    {% csrf_token %}
-                    <div class="row">
-                        <div id="trial1" class="container center">
-                            <!-- <h3 class="center">Hi, {{ user }}! Welcome to your Dashboard</h3>
-                            <br> -->
-                            
-                            <h5 id="bud" class='center'>Your total budget is: <span style="color:green;">{{budget}}</span> Rupees</h5>
-                            
-                            <h5 id="spent" class='center'>You've spent a total of : <span style="color:red;">{{expenses}}</span>Rupees</h5>
-                            
-                            <h5 id="amt_left" class='center'>Amount left: <span style="color:black;">{{diff}}</span> Rupees</h5>
-                            {% if expenses > budget %} <p style="background-color: #F08080"> You've spent too much! </p>
-                            {% endif %}
-                            <br>
-                            <br>
-                            <br>
-                            <br>
-                            <div class="input-field col s3">
-                                <input placeholder="Expense name" name="expense_name" id='expense_name' type='text' class='validate' required>
-                                <label for='expense_name'>Expense name</label>
-                            </div>
-                            <div class="input-field col s3">
-                                <input placeholder='Amount' name='cost' id='cost' type='text' class='validate' required>
-                                <label for='cost'>Amount</label>
-                            </div>
-                            <div class="input-field col s3">
-                                <input placeholder='Date of Expense' name="expense_date" id="expense_date" type="text" class='datepicker' required>
-                                <label for="expense_date">Expense Date</label>
-                            </div>
-                            <button id="add_exp" class="btn waves-effect waves-light" type="submit" name="action" onclick="getContent()">Add Expense
-                                <i class="material-icons right">add_circle</i>
-                            </button>
-                            
-                        </div>
-                    </div>
-                </form>
-
-
-            </div>
-                <!-- <form class="col s12" action='{% url "dashboard" %}' method='post'>
-                    {% csrf_token %}
-                    <center>
-                    <button class="btn waves-effect waves-light" type="submit" name="action">
-                    View Your Personalised Dash
-                    </button>
-                </center>
-                </form> -->
-                <div>
-                <center>
-                
-                <button id="view" class="btn waves-effect waves-light" type="submit" name="action" onclick="show()">
-                    View Your Personalised Dashboard
-                </button>
-                <button id = "hide" class="btn waves-effect waves-light" type="submit" name="action" onclick="hidedb()">
-                    Hide your Personalised dashboard
-                </button>
-                <h5 id="pred" class='center'>Predicted spend: <span style="color:black;">{{ lower }}-{{ upper }}</span> Rupees</h5>
-                <div id="showdb" style="display: inline">
-                <center>
-                <div>
-                </div>
-                
-
-            </div>
-
-        </div>
-
-        <div id="tabl" class="section">
-            <div class="row">
-                <div class="container">
-                    <div  class="col s6">
-                        <h5> Review your Credits </h5>
-                        <table class="striped centered responsive-table">
-                            <thead>
-                                <tr class="table-row">
-                                    <th>Item</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for expense_item in expense_items %}
-                                {% if expense_item.cost > 0 %}
-                                <tr class="table-row">
-                                    <td>{{ expense_item.expense_name }}</td>
-                                    <td>{{ expense_item.cost }}</td>
-                                    <td>{{ expense_item.date_added}}</td>
-                                    <td></td>
-                                </tr>
-                                {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="col s6">
-                        <h5> Review your Debits </h5>
-                        <table class="striped centered responsive-table">
-                            <thead>
-                                <tr>
-                                    <th>Item</th>
-                                    <th>Amount</th>
-                                    <th>Date</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {% for expense_item in expense_items %}
-                                {% if expense_item.cost < 0 %}
-                                <tr class="table-row">
-                                    <td>{{ expense_item.expense_name }}</td>
-                                    <td>{{ expense_item.cost}}</td>
-                                    <td>{{ expense_item.date_added}}</td>
-                                    <td></td>
-                                </tr>
-                                {% endif %}
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-        </div>
-
-            
-        </div>
 
 
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                var elems = document.querySelectorAll('.datepicker');
+                var instances = M.Datepicker.init(elems, {format:'yyyy-mm-dd'});
+            });
+        </script>
 
+<!--
         <script type="text/javascript">
             document.addEventListener('DOMContentLoaded', function() {
                 var elems = document.querySelectorAll('.datepicker');
@@ -301,6 +188,7 @@
 
 
         </script>
+-->
     </body>
 
 </html>
