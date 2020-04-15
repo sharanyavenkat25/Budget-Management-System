@@ -16,6 +16,7 @@ import datetime
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.ar_model import AR
 from random import random
+import os
 # Create your views here.
 
 labels={}
@@ -30,8 +31,8 @@ labels2=[]
 costs2= []
 
 
-
 def index(request):
+
 	init_name = request.POST.get('init_name','Budget')
 	init_budget = request.POST.get('init_budget',0)
 	init_expense_date = request.POST.get('init_expense_date','2020-04-01')
@@ -118,6 +119,15 @@ def add_item(request):
 	
 	return HttpResponseRedirect('budget')
 def budget(request):
+	if(os.path.exists("budget_app/static/budget_app/expense.png")):
+		os.remove("budget_app/static/budget_app/expense.png")
+	if(os.path.exists("budget_app/static/budget_app/credits.png")):
+		os.remove("budget_app/static/budget_app/credits.png")
+	if(os.path.exists("budget_app/static/budget_app/costs.png")):
+		os.remove("budget_app/static/budget_app/costs.png")
+	if(os.path.exists("budget_app/static/budget_app/predict.png")):
+		os.remove("budget_app/static/budget_app/predict.png")
+	print("removing all static files")
 	init_name = request.POST.get('init_name','Budget')
 	init_budget = request.POST.get('init_budget',0)
 	init_expense_date = request.POST.get('init_expense_date','2020-04-01')
@@ -142,6 +152,8 @@ def budget(request):
 	labels2=[]
 	costs2=[]
 	debit_dates=[]
+	labels={}
+	cred_labels={}
 	for expense_item in expense_items:
 		
 		if((expense_item.cost)<0):
@@ -197,12 +209,22 @@ def budget(request):
 	lower=0
 	upper=0
 
+
+	def unique(sequence):
+	    seen = set()
+	    return [x for x in sequence if not (x in seen or seen.add(x))]
+
+
 	fig3, ax3 = plt.subplots(figsize=(6,4))
 	fig3.autofmt_xdate()
 	copy=[]
 	copy=list(costs1)
-	ax3.plot(debit_dates, copy)
-	plt.savefig('budget_app/static/budget_app/predict.png')
+	print("before ...",debit_dates)
+	debit_dates=unique(debit_dates)
+	print("after ... ",debit_dates)
+	if(len(debit_dates)==len(copy)):
+		ax3.plot(debit_dates, copy)
+		plt.savefig('budget_app/static/budget_app/predict.png')
 
 	if(len(debit_dates)>=10):
 			fig3, ax3 = plt.subplots(figsize=(6,4))
@@ -219,11 +241,12 @@ def budget(request):
 			print(debit_dates)
 			#copy.append(yhat)
 			#debit_dates.append(debit_dates[0]+datetime.timedelta(days=1))
-			fig3.autofmt_xdate()
-			ax3.plot(debit_dates, copy)
+			if(len(debit_dates)==len(copy)):
+				fig3.autofmt_xdate()
+				ax3.plot(debit_dates, copy)
 
-			  #line graph for AR
-			plt.savefig('budget_app/static/budget_app/predict.png')
+				  #line graph for AR
+				plt.savefig('budget_app/static/budget_app/predict.png')
 
 			#fig4, ax4 = plt.subplots()
 			model2 =  ExponentialSmoothing(list(costs1))
