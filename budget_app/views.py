@@ -127,7 +127,7 @@ def budget(request):
 		os.remove("budget_app/static/budget_app/costs.png")
 	if(os.path.exists("budget_app/static/budget_app/predict.png")):
 		os.remove("budget_app/static/budget_app/predict.png")
-	print("removing all static files")
+	print("\t \t -----Removing all static files...------")
 	init_name = request.POST.get('init_name','Budget')
 	init_budget = request.POST.get('init_budget',0)
 	init_expense_date = request.POST.get('init_expense_date','2020-04-01')
@@ -176,7 +176,7 @@ def budget(request):
 
 	labels2=cred_labels.keys()
 	costs2=cred_labels.values()
-	print(list(debit_dates))
+	# print(list(debit_dates))
 	print("printing from index for debit")
 
 	print(labels1)
@@ -219,9 +219,9 @@ def budget(request):
 	fig3.autofmt_xdate()
 	copy=[]
 	copy=list(costs1)
-	print("before ...",debit_dates)
+	# print("before ...",debit_dates)
 	debit_dates=unique(debit_dates)
-	print("after ... ",debit_dates)
+	# print("after ... ",debit_dates)
 	if(len(debit_dates)==len(copy)):
 		ax3.plot(debit_dates, copy)
 		plt.savefig('budget_app/static/budget_app/predict.png')
