@@ -1,6 +1,16 @@
 import random
 from locust import HttpUser, task, between
 
+
+'''
+Instructions to follow : 
+
+Run locust -f locustfile.py --host=http://127.0.0.1:8000 on terminal
+Navigate to http://localhost:8089/ or http://127.0.0.1:8089 on a browser
+
+Set Number of users and Hatch rate (example: Number of users=6 Hatch Rate = 2)
+ensure the host field is preset to http://127.0.0.1:8000 i.e the path where our Django web app runs
+'''
 class WebsiteUser(HttpUser):
 	wait_time = between(5, 9)
 
