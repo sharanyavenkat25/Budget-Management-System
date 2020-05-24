@@ -17,6 +17,13 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.ar_model import AR
 from random import random
 import os
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+
+import warnings
+warnings.filterwarnings('ignore', 'statsmodels.tsa.ar_model.AR', FutureWarning)
+
+
 # Create your views here.
 
 labels={}
@@ -47,6 +54,11 @@ def index(request):
 		budget_total['budget']=0
 	if(expense_total['expenses'] is None):
 		expense_total['expenses']=0
+	if(abs(expense_total['expenses']) > budget_total['budget']):
+
+		print("\n\tWARNING *** : YOU HAVE SPENT MORE THAN YOUR SAVINGS \n")
+		print("CURRENT EXPENSES : ",abs(expense_total['expenses']))
+		print("CURRENT BUDGET BALANCE : ",budget_total['budget'])
 
 	context = {'expense_items':expense_items,'budget':budget_total['budget'],'diff': budget_total['budget']+expense_total['expenses'],'expenses':abs(expense_total['expenses'])}
 	return render(request,'budget_app/index.html',context=context)
@@ -94,6 +106,7 @@ def add_item(request):
 	ax.bar(['Expenses','Budget'], [abs(expense_total['expenses']),abs(budget_total['budget'])],color=['red','green'])
 	# ax.set_title('Your total expenses vs. total budget')
 	plt.savefig('budget_app/static/budget_app/expense.png')
+	plt.close('all')
 
 	# fig1, ax1 = plt.subplots()
 	# ax1.pie(costs1,labels=labels1,autopct='%.1f%%',startangle=90)
@@ -109,12 +122,14 @@ def add_item(request):
 	plt.setp(autotexts, size=10, weight="bold")
 	# ax1.set_title("Your Monthly Expenses")
 	plt.savefig('budget_app/static/budget_app/costs.png')
+	plt.close('all')
 
 	fig2, ax2 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
 	wedges_, texts_, autotexts_ = ax2.pie(costs2, autopct='%1.1f%%',textprops=dict(color="w"))
 	ax2.legend(wedges_,labels2,title="Credits",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 	plt.setp(autotexts_, size=10, weight="bold")
 	plt.savefig('budget_app/static/budget_app/credits.png')
+	plt.close('all')
 
 	
 	return HttpResponseRedirect('budget')
@@ -127,7 +142,7 @@ def budget(request):
 		os.remove("budget_app/static/budget_app/costs.png")
 	if(os.path.exists("budget_app/static/budget_app/predict.png")):
 		os.remove("budget_app/static/budget_app/predict.png")
-	print("\t \t -----Removing all static files...------")
+	print("\t \t ***** Removing all pre existing static files ...")
 	init_name = request.POST.get('init_name','Budget')
 	init_budget = request.POST.get('init_budget',0)
 	init_expense_date = request.POST.get('init_expense_date','2020-04-01')
@@ -146,6 +161,7 @@ def budget(request):
 	fig,ax=plt.subplots()
 	ax.bar(['Expenses','Budget'], [abs(expense_total['expenses']),abs(budget_total['budget'])],color=['red','green'])
 	plt.savefig('budget_app/static/budget_app/expense.png')
+	plt.close('all')
 
 	labels1=[]
 	costs1 = []
@@ -171,6 +187,7 @@ def budget(request):
 				cred_labels[expense_item.expense_name]=abs(expense_item.cost)
 			# print(cred_labels)
 	
+
 	labels1=labels.keys()
 	costs1=labels.values()
 
@@ -198,6 +215,7 @@ def budget(request):
 	ax1.legend(wedges,labels1,title="Expenditures",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 	plt.setp(autotexts, size=10, weight="bold")
 	plt.savefig('budget_app/static/budget_app/costs.png')
+	plt.close('all')
 
 	fig2, ax2 = plt.subplots(figsize=(6,4), subplot_kw=dict(aspect="equal"))
 	wedges_, texts_, autotexts_ = ax2.pie(costs2, autopct='%1.1f%%',textprops=dict(color="w"))
@@ -205,6 +223,7 @@ def budget(request):
 	ax2.legend(wedges_,labels2,title="Credits",loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
 	plt.setp(autotexts_, size=10, weight="bold")
 	plt.savefig('budget_app/static/budget_app/credits.png')
+	plt.close('all')
 	
 	lower=0
 	upper=0
@@ -225,6 +244,7 @@ def budget(request):
 	if(len(debit_dates)==len(copy)):
 		ax3.plot(debit_dates, copy)
 		plt.savefig('budget_app/static/budget_app/predict.png')
+		plt.close('all')
 
 	if(len(debit_dates)>=10):
 			fig3, ax3 = plt.subplots(figsize=(6,4))
@@ -232,13 +252,15 @@ def budget(request):
 			model_fit = model.fit()
 			# make prediction
 			yhat = model_fit.predict(len(costs1), len(costs1))
-			print("PREDICTED EXPENSE...")
+			print("\t ***** PREDICTED EXPENSE...")
 			print(yhat)  #new expense
 			# copy=[]
 			# copy=list(costs1)
+			'''
 			print(costs1)
 			print(copy)
 			print(debit_dates)
+			'''
 			#copy.append(yhat)
 			#debit_dates.append(debit_dates[0]+datetime.timedelta(days=1))
 			if(len(debit_dates)==len(copy)):
@@ -247,13 +269,14 @@ def budget(request):
 
 				  #line graph for AR
 				plt.savefig('budget_app/static/budget_app/predict.png')
+				plt.close('all')
 
 			#fig4, ax4 = plt.subplots()
 			model2 =  ExponentialSmoothing(list(costs1))
 			model_fit2 = model2.fit()
 			# make prediction
 			yhat2 = model_fit2.predict(len(costs1), len(costs1))
-			print("Range of expenses:")
+			print("*** RANGE OF EXPENSES :")
 			print(yhat[0], "-", yhat2[0])  #new expense
 			#copy2=[]
 			#copy2=list(costs1)
